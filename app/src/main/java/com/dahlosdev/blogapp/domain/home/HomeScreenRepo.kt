@@ -1,4 +1,4 @@
-package com.dahlosdev.blogapp.domain
+package com.dahlosdev.blogapp.domain.home
 
 import com.dahlosdev.blogapp.core.Resource
 import com.dahlosdev.blogapp.data.model.Post

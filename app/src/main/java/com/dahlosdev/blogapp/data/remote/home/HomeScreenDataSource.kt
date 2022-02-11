@@ -1,4 +1,4 @@
-package com.dahlosdev.blogapp.data.remote
+package com.dahlosdev.blogapp.data.remote.home
 
 import com.dahlosdev.blogapp.core.Resource
 import com.dahlosdev.blogapp.data.model.Post

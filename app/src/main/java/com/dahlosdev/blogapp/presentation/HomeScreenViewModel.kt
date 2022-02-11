@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import com.dahlosdev.blogapp.core.Resource
-import com.dahlosdev.blogapp.domain.HomeScreenRepo
+import com.dahlosdev.blogapp.domain.home.HomeScreenRepo
 import kotlinx.coroutines.Dispatchers
 import java.lang.Exception
 
