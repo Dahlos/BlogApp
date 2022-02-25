@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dahlosdev.blogapp.core.BaseViewHolder
+import com.dahlosdev.blogapp.core.TimeUtils
 import com.dahlosdev.blogapp.data.model.Post
 import com.dahlosdev.blogapp.databinding.PostItemViewBinding
 
@@ -38,8 +39,11 @@ class HomeScreenAdapter(private val postList: List<Post>) : RecyclerView.Adapter
             } else {
                 binding.postDescription.text = item.post_description
             }
-//            binding.postDescription.text = item.post_description.ifEmpty { "" }
-            binding.postTimestamp.text = "Two hours ago"
+
+            val createdAt = (item.created_at?.time?.div(1000L))?.let {
+                TimeUtils.getTimeAgo(it.toInt())
+            }
+            binding.postTimestamp.text = createdAt
         }
     }
 }
