@@ -6,16 +6,21 @@ import androidx.lifecycle.liveData
 import com.dahlosdev.blogapp.core.Result
 import com.dahlosdev.blogapp.domain.home.HomeScreenRepo
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import java.lang.Exception
 
 class HomeScreenViewModel(private val repo: HomeScreenRepo) : ViewModel() {
 
     fun fetchLatestPosts() = liveData(Dispatchers.IO) {
         emit(Result.Loading())
-        try {
-            emit(repo.getLatestPosts())
-        } catch (e: Exception) {
-            emit(Result.Failure(e))
+        kotlin.runCatching {
+            repo.getLatestPosts()
+        }.onSuccess { flowList ->
+            flowList.collect {
+                emit(it)
+            }
+        }.onFailure { throwable ->
+            emit(Result.Failure(Exception(throwable.message)))
         }
     }
 }
