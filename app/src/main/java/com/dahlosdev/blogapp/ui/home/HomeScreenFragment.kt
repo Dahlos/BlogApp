@@ -10,15 +10,17 @@ import com.dahlosdev.blogapp.R
 import com.dahlosdev.blogapp.core.Result
 import com.dahlosdev.blogapp.core.hide
 import com.dahlosdev.blogapp.core.show
+import com.dahlosdev.blogapp.data.model.Post
 import com.dahlosdev.blogapp.data.remote.home.HomeScreenDataSource
 import com.dahlosdev.blogapp.databinding.FragmentHomeScreenBinding
 import com.dahlosdev.blogapp.domain.home.HomeScreenRepoImpl
 import com.dahlosdev.blogapp.presentation.HomeScreenViewModel
 import com.dahlosdev.blogapp.presentation.HomeScreenViewModelFactory
 import com.dahlosdev.blogapp.ui.home.adapter.HomeScreenAdapter
+import com.dahlosdev.blogapp.ui.home.adapter.OnPostClickListener
 
 
-class HomeScreenFragment : Fragment(R.layout.fragment_home_screen) {
+class HomeScreenFragment : Fragment(R.layout.fragment_home_screen), OnPostClickListener {
 
     private lateinit var binding: FragmentHomeScreenBinding
     private val viewModel by viewModels<HomeScreenViewModel> { HomeScreenViewModelFactory(HomeScreenRepoImpl(HomeScreenDataSource())) }
@@ -44,7 +46,7 @@ class HomeScreenFragment : Fragment(R.layout.fragment_home_screen) {
                         } else {
                             binding.emptyContainer.hide()
                         }
-                        binding.rvHome.adapter = HomeScreenAdapter(result.data)
+                        binding.rvHome.adapter = HomeScreenAdapter(result.data, this)
                     }
 
                     is Result.Failure -> {
@@ -54,5 +56,21 @@ class HomeScreenFragment : Fragment(R.layout.fragment_home_screen) {
                 }
             }
         )
+    }
+
+    override fun onLikeButtonClick(post: Post, liked: Boolean) {
+        viewModel.registerLikeButtonState(post.id, liked).observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is Result.Loading -> {}
+                is Result.Success -> {}
+                is Result.Failure -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Ocurrio un error: ${result.exception}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     }
 }

@@ -4,14 +4,24 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.dahlosdev.blogapp.R
 import com.dahlosdev.blogapp.core.BaseViewHolder
 import com.dahlosdev.blogapp.core.TimeUtils
 import com.dahlosdev.blogapp.data.model.Post
 import com.dahlosdev.blogapp.databinding.PostItemViewBinding
 
-class HomeScreenAdapter(private val postList: List<Post>) : RecyclerView.Adapter<BaseViewHolder<*>>() {
+class HomeScreenAdapter(
+    private val postList: List<Post>, private val onPostClickListener: OnPostClickListener
+) : RecyclerView.Adapter<BaseViewHolder<*>>() {
+
+    private var postClickListener: OnPostClickListener? = null
+
+    init {
+        postClickListener = onPostClickListener
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
         val itemBinding = PostItemViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -35,11 +45,14 @@ class HomeScreenAdapter(private val postList: List<Post>) : RecyclerView.Adapter
             addPostTimeStamp(item)
             setupPostImage(item)
             setupPostDescription(item)
+            tintHeartIcon(item)
+            setupLikeCount(item)
+            setLikeClickAction(item)
         }
 
         private fun setupProfileInfo(post: Post) {
-            Glide.with(context).load(post.profile_picture).centerCrop().into(binding.profilePicture)
-            binding.profileName.text = post.profile_name
+            Glide.with(context).load(post.poster?.profile_picture).centerCrop().into(binding.profilePicture)
+            binding.profileName.text = post.poster?.username
         }
 
         private fun addPostTimeStamp(post: Post) {
@@ -60,5 +73,38 @@ class HomeScreenAdapter(private val postList: List<Post>) : RecyclerView.Adapter
                 binding.postDescription.text = post.post_description
             }
         }
+
+        private fun tintHeartIcon(post: Post) {
+            if (!post.liked) {
+                binding.likeBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_favorite_border_24))
+                binding.likeBtn.setColorFilter(ContextCompat.getColor(context, R.color.black))
+            } else {
+                binding.likeBtn.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_favorite_24))
+                binding.likeBtn.setColorFilter(ContextCompat.getColor(context, R.color.red_like))
+            }
+        }
+
+        private fun setupLikeCount(post: Post) {
+            if (post.likes > 0) {
+                binding.likeCount.visibility = View.VISIBLE
+                binding.likeCount.text = "${post.likes} likes"
+            } else {
+                binding.likeCount.visibility = View.GONE
+            }
+        }
+
+        private fun setLikeClickAction(post: Post) {
+            binding.likeBtn.setOnClickListener {
+                if (post.liked) post.apply { liked = false } else post.apply { liked = true }
+                tintHeartIcon(post)
+                postClickListener?.onLikeButtonClick(post, post.liked)
+            }
+        }
+
     }
+}
+
+
+interface OnPostClickListener {
+    fun onLikeButtonClick(post: Post, liked: Boolean)
 }
